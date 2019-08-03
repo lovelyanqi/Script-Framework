@@ -1,6 +1,6 @@
 /*
  * CopyRight (c) 2018, 2019, LovelyAnQi
- * Script: Communication Oriented Objectified Toolkit
+ * Script: Structured Type Unification Support
  *
  *
  *
@@ -25,69 +25,65 @@
 
 package lovelyanqi.script;
 
-import java.util.Map;
-
 /**
  * <b> LovelyAnQi.Script Framework <i>Script CopyRight V2.3</i></b>
  * <br /><br />
- * class <code>Script</code> is the core unit of the
- * <b><i>LovelyAnQi Script</i></b> framework.
- * <br />
- * The core of <b>Script framework</b> is to unify <i>Java basic
- * types</i> and <i>Java functions</i>.
- * <br />
- * The Script framework is dedicated to improving the linkages of all data types.
- * <br />
+ * Class <code>Script</code> is the core unit of the <b><i>LovelyAnQi Script</i></b> framework.<br />
+ * <code>Script</code> is committed to unify <i>Java basic types</i> and <i>Java functions</i>.<br />
+ * The Script framework is dedicated to improving the linkages of all data types.<br />
  * Script also provides Java with more flexible pointer types.
  * <br /><br />
  * We can define a Script object in a very flexible way:
- * <blockquote><pre>
- *     Script sp = new Script();	//si.typeof() equals <b>Undefined</b>	sp == Script::Undefined
- *     Script si = new Script(null);	//si.typeof() equals <b>Null</b>	si equals null
- *     Script sn = new Script(0);	//sn.typeof() equals <b>Number</b>	sn equals 0
- *     Script sb = new Script(true);	//sb.typeof() equals <b>Boolean</b>	sb equals true
- *     Script ss = new Script("str");	//ss.typeof() equals <b>String</b>	ss equals "str"
- * </pre></blockquote>
+ * <pre>
+ *     Script s_p = new Script();           //s_i.typeof() equals <b>Undefined</b>  s_p == Script::Undefined
+ *     Script s_i = new Script(null);       //s_i.typeof() equals <b>Null</b>       s_i equals null
+ *     Script s_n = new Script(0);          //s_n.typeof() equals <b>Number</b>     s_n equals 0
+ *     Script s_b = new Script(true);       //s_b.typeof() equals <b>Boolean</b>    s_b equals true
+ *     Script s_s = new Script("string");   //s_s.typeof() equals <b>String</b>     s_s equals "string"
+ * </pre>
+ * 
  * You can also use the above types to combine more advanced types:
- * <blockquote><pre>
+ * <pre>
  *     Script array = Script.Array(0, 1, 2, true, "Script");
  *     //array.typeof() equals <b>Array</b>, array.toString() equals "[0, 1, 2, true, "Script"]"
  *     
  *     Script object = Script.ListObject("attr0", true, "attr1", "-1");
  *     //object.typeof() equals <b>Object</b>, object.toString() equals "{attr0: true, attr1: "-1"}"
- * </pre></blockquote>
+ * </pre>
+ * 
  * Of course, combined high-level types can still combine new script elements:
- * <blockquote><pre>
+ * <pre>
  *     Script array = Script.Array(0, 1);
- *     
- *     Script xarray = Script.Array(array, array);
- *     //xarray.typeof() equals <b>Array</b>, xarray.toString() equals "[[0, 1], [0, 1]]"
- * </pre></blockquote>
- * You can even use script to build anonymous functions:
- * <blockquote><pre>
- *     //function.typeof() equals <b>Function</b>
- *     //function.toString() equals "function()=> { Script Anonymous Function (Simple Printing) }"
- *     Script function = Script.Function(new Script() {
- *         @Override
- *         public void run(Script res) { System.out.println(res); }
- *         
- *         @Override
- *         public String toString() { return "Script Anonymous Function (Simple Printing)"; }
+ *     Script binArray = Script.Array(array, array);
+ *     //binArray.typeof() equals <b>Array</b>, binArray.toString() equals "[[0, 1], [0, 1]]"
+ * </pre>
+ * 
+ * You can even use Script to build anonymous functions:
+ * <pre>
+ *     Script function = Script.Function((Object... objects) -> {
+ *         System.out.println("Hello World!");
+ *         return null;
  *     });
- * </pre></blockquote>
+ * </pre>
+ * 
  * You can also use script to build pointers:
- * <blockquote><pre>
- *     Script pointer = new Script(0.1);
- *     //poiner.typeof() equals <b>Pointer</b>, pointer.toString() equals "0.1"
- * </pre></blockquote>
+ * <pre>
+ *     Character character = Character.valueOf('C');
+ *     Script pointer = new Script(character);
+ *     //poiner.typeof() equals <b>Pointer</b>, pointer.toString() equals "pointer-> { C }"
+ * </pre>
  * There is no doubt that pointers and anonymous functions can also be used to construct
  * the above advanced types.
  * <br /><br />
- * <b><i>Script CopyRight V2.3  @author LovelyAnQi 2019.05.16</i></b>
+ * <i>It is noteworthy that Script is not directly used to express data structures and provide
+ * rich implementations for them. Script is mainly used to provide an extensible computer
+ * language framework as its basic class.<i>
+ * <br /><br />
+ * <b><i>Script CopyRight V2.3  @author LovelyAnQi 2019.07.29</i></b>
  */
-public class Script {
+public final class Script implements Functional/*, java.lang.Iterable<Script>*/ {
 	/**
-	 * LovelyAnQi.Script <b>class <i>Script</i></b> Version
+	 * <b>LovelyAnQi.Script class <i>Script</i> Version</b>
 	 * <br />
 	 * The Script Framework version and the underlying firmware
 	 * version are independent of each other.
@@ -95,14 +91,16 @@ public class Script {
 	 * The Script Framework will select the specified stable
 	 * firmware to launch the new version.
 	 */
-	public static final String CopyRight = "LovelyAnQi.Script.Script [版本 V2.3 2019.05.16]";
+	public static final String CopyRight = "LovelyAnQi.Script.Script [版本 V2.3 2019.07.29]";
 	
-	/**
-	 * <b>Type filter</b><br />
-	 * Every script element has a fixed type
-	 */
+	/** <b>Type filter</b><br /> */
 	private enum Type {
-		Undefined, Null, String, Number, Boolean, Array, Pointer, Object, Function
+		Undefined, Null, String, Number, Boolean, Function, Pointer, Array, Object
+	}
+	
+	public static interface VOID_Functional {
+		//TODO
+		public void run(java.lang.Object... objects);
 	}
 	
 	/**
@@ -116,7 +114,7 @@ public class Script {
 	 * <b>Script Core Data Elements</b><br />
 	 * The data element entity of Script will be saved from this variable.
 	 */
-	private Object script;
+	private java.lang.Object script;
 	
 	/**
 	 * <b>Script Element Type</b><br />
@@ -125,7 +123,7 @@ public class Script {
 	private Type type;
 	
 	/**
-	 * <b>Public field: <i>True</i></b><br />
+	 * <b>Public field: <i>False</i></b><br />
 	 * Common Constants Defined by Script = <b>Script::Boolean(false)</b><br />
 	 * This public field cannot be assigned, and references to this public field
 	 * do not create new objects.
@@ -134,12 +132,12 @@ public class Script {
 	
 	/**
 	 * <b>Public field: <i>Null</i></b><br />
-	 * Common Constants Defined by Script = <b>Script::Null</b><br />
+	 * Common Constants Defined by Script = <b>Script::Null()</b><br />
 	 * This public field cannot be assigned, and references to this public field
 	 * do not create new objects.
 	 */
 	public static final Script Null = Script.Null().lock();
-
+	
 	/**
 	 * <b>Public field: <i>True</i></b><br />
 	 * Common Constants Defined by Script = <b>Script::Boolean(true)</b><br />
@@ -149,20 +147,39 @@ public class Script {
 	public static final Script True = Script.Boolean(true).lock();
 	
 	/**
-	 * <b>Constant Lock</b><br />
+	 * <b>Private field: <i>NullFunction</i></b><br />
+	 * The system's built-in reserved function, whose return value is null,
+	 * has no practical significance.
+	 */
+	private static final Functional NullFunction = new Functional() {
+		
+		@Override
+		public Script run(java.lang.Object... parameters) {
+			return null;
+		}
+		
+		@Override
+		public java.lang.String toString() {
+			return "System Built-In Empty Function";
+		}
+	};
+	
+	/**
+	 * <b><i>Constant Lock</i></b><br />
 	 * The return value of a constant lock is the element itself, and a constant
 	 * lock is applied to the element.
 	 * <br /><br />
 	 * The following types of elements become constants, that is, they cannot be
 	 * changed:<br />
-	 * <b> { Undefined, Null, String, Number, Boolean, Pointer, Function }</b>
+	 * <i> { Undefined, Null, String, Number, Boolean, Pointer, Function }</i>
 	 * <br /><br />
 	 * The types of elements of the following types will be locked, that is, their
 	 * types cannot be changed:<br />
-	 * <b> { Array, Object } </b>
+	 * <i> { Array, Object } </i>
+	 * <br /><br />
+	 * Constant locks ensure that variables cannot be assigned or deleted.
 	 */
 	public final Script lock() {
-		//Check the validity of variable initialization
 		this.checkUndefined("lock()");
 		
 		this.isConstant = true;
@@ -174,115 +191,90 @@ public class Script {
 	 * Unlock the constant lock of the element to restore the normal variable.
 	 */
 	public final Script unlock() {
-		//Check the validity of variable initialization
 		this.checkUndefined("unlock()");
 		
 		this.isConstant = false;
 		return this;
 	}
-
+	
+	
+	
+	
 	/**********************************************************
 	                      Constructor Set
 	 **********************************************************/
 	
 	/**
-	 * <b>Default Constructor</b><br />
+	 * <b>Native Constructor</b><br />
 	 * Private constructor, one-step initialization using specified initial state.
 	 */
-	private Script(Object script, Type type) {
-		super();					//Call Object.Object()
+	private Script(java.lang.Object script, Type type) {
+		super();							//Call Object.Object()
 		
 		/** Using the incoming parameter to construct a Script element */
 		this.script = script;
 		this.type = type;
 		
-		this.isConstant = false;	//Default = false
+		this.isConstant = false;			//Default = false
 	}
 	
 	/**
 	 * <b>Default Constructor</b><br />
-	 * The default constructor completes all initialization of a new script element.
+	 * The no parameters constructor of Script, which returns an instance of Script of Undefined type.
 	 * <br />
-	 * Script() initializes a script element of <b>Undefined</b> type.
-	 * <blockquote><pre>
-	 *     Script sp = new Script();	//sp.typeof() equals "Undefined"
-	 * </pre></blockquote>
-	 * An Undefined variable <i>is allowed to be assigned</i>, but no other operation
+	 * Script() initializes a Script element of <b>Undefined</b> type.
+	 * <pre>
+	 *     Script s_p = new Script();       //s_p.typeof() equals "Undefined"
+	 * </pre>
+	 * An Undefined variable <i>is allowed to be assigned or deleted</i>, but no other operation
 	 * is allowed.
 	 */
 	public Script() {
-		this(null, Type.Undefined);			//Construct An Undefined Script Element
+		this(null, Type.Undefined);		//Construct An Undefined Script Element
 	}
 	
 	/**
-	 * <b>Constructing Method of Specified Object</b><br />
-	 * Construct a Script element with any specified object.<br>
-	 * Note: <i>It is generally believed that calling static generation methods of
-	 * corresponding types to construct Script elements is more efficient than calling
-	 * Script(Object) constructors.</i>.
+	 * <b>Type Initialization Constructor</b><br />
+	 * <i>Type initialization constructors can infer finite types and generate Script
+	 * instances of the corresponding types.</i>
 	 * <br /><br />
-	 * For different target objects, Script(Object) will use different initialization
-	 * methods, the specific format is as follows:<br />
-	 * For <i>null</i>, Script initializes a Script element of type Null.<br />
-	 * For <i>an object of type Script</i>, Script will clone the object on this new 
-	 * instance.
+	 * Initialization type inference supports the following basic types:
+	 * <br /><code>{ null, Integer, Boolean, String }</code><br />
+	 * Type inference can also infer the following array types in the form of initialization lists:
+	 * <br /><code>{ int[], boolean[], String[] }</code>
 	 * <br /><br />
-	 * Specifically, <i>Script provides more parsing types than let() method</i>.<br />
-	 * For <i>{ int, boolean, String }</i>, Script is initialized to the corresponding
-	 * <i>Number, Boolean, String</i> Script elements according to the given value.<br />
-	 * For <i>{ int[], boolean[], String[] }</i>, Script is initialized to an Array of
-	 * corresponding types.
-	 * <br /><br />
-	 * Warning: <i>Other types are converted to Script pointers</i>.
+	 * <i>In particular, we recommend using the type generator of the specified type instead of the
+	 * constructor of type inference, so that the generated type must be reliable and has no inferred cost.</i>
 	 */
-	public Script(Object object) {
-		this(null, Type.Undefined);			//Default initialization
+	public Script(java.lang.Object object) {
+		this(null, Type.Undefined);		//Default initialization
 		
 		/**
 		 * Directional instantiation: Null
 		 * Initialize a type of Script element for Null.
 		 */
 		if (object == null) {
-			this.type = Type.Null;	//Relocation
-			return;					//Initialization complete
+			this.type = Type.Null; return;	//Initialization complete
 		}
 		
 		/** Equivalent to cloning a new script element */
-		if (object instanceof Script) {		//Clonal structure
+		if (object instanceof Script) {	
 			/** Cloning a copy of the current instance using the target script instance */
-			this.Clone((Script)object);			//Call the cloning method
-			return;					//Initialization complete
+			this.Clone((Script)object); return;
 			
 			/** Building a new script element with a given Java member */
-		} else {								//Create new script elements			
-			/**
-			 * Script provides more parsing types than let() method
-			 * 1. int
-			 * 2. boolean
-			 * 3. String
-			 * 4. int[]
-			 * 5. boolean[]
-			 * 6. String[]
-			 */
+		} else {							//Type Inference Branch
 			
-			/* Processing target data of type int */
-			if (object instanceof Integer) {
-				this.let(object);
-				
-				/* Processing target data of type boolean */
-			} else if (object instanceof Boolean) {
-				this.let(object);
-				
-				/* Processing target data of type String */
-			} else if (object instanceof String) {
+			/** Processing target data of type { Integer, Boolean, String } */
+			if (object instanceof java.lang.Integer || object instanceof java.lang.Boolean
+					|| object instanceof java.lang.String) {
 				this.let(object);
 				
 				/* Processing target data of type int[] */
 			} else if (object instanceof int[]) {
-				this.type = Type.Array;			//Type relocation
+				this.type = Type.Array;		//Type Relocation
 				int[] nativeNumberArray = (int[])object;
-				//Dependence on Java Standard Library
-				java.util.ArrayList<Script> nativeArray = new java.util.ArrayList<Script>();
+				java.util.Vector<Script> nativeArray = new java.util.Vector<Script>();
 				
 				for (int index = 0; index < nativeNumberArray.length; index++) {
 					/** Native acceleration */
@@ -291,11 +283,10 @@ public class Script {
 				this.script = nativeArray;
 				
 				/* Processing target data of type boolean[] */
-			} else if (object instanceof Boolean[]) {
-				this.type = Type.Array;			//Type relocation
+			} else if (object instanceof boolean[]) {
+				this.type = Type.Array;		//Type Relocation
 				boolean[] nativeBooleanArray = (boolean[])object;
-				//Dependence on Java Standard Library
-				java.util.ArrayList<Script> nativeArray = new java.util.ArrayList<Script>();
+				java.util.Vector<Script> nativeArray = new java.util.Vector<Script>();
 				
 				for (int index = 0; index < nativeBooleanArray.length; index++) {
 					/** Native acceleration */
@@ -303,12 +294,11 @@ public class Script {
 				}
 				this.script = nativeArray;
 				
-				/* Processing target data of type String */
-			} else if (object instanceof String[]) {
-				this.type = Type.Array;			//Type relocation
-				String[] nativeStringArray = (String[])object;
-				//Dependence on Java Standard Library
-				java.util.ArrayList<Script> nativeArray = new java.util.ArrayList<Script>();
+				/* Processing target data of type String[] */
+			} else if (object instanceof java.lang.String[]) {
+				this.type = Type.Array;		//Type Relocation
+				java.lang.String[] nativeStringArray = (java.lang.String[])object;
+				java.util.Vector<Script> nativeArray = new java.util.Vector<Script>();
 				
 				for (int index = 0; index < nativeStringArray.length; index++) {
 					/** Native acceleration */
@@ -318,26 +308,25 @@ public class Script {
 				
 				/** Other types are converted to script pointers */
 			} else {
-				this.type = Type.Pointer;		//Type relocation
+				this.type = Type.Pointer;	//Type relocation
 				this.script = object;
 			}
 		}
 	}
+	
 	/**********************************************************/
 	
 	
+	
+	
 	/**********************************************************
-	          Type Primitive Generation Component Set
+	          Primitive Type Generation Component Set
 	 **********************************************************/
 	
 	/**
-	 * <b>Script Type Constructor</b><br />
-	 * Undefined() returns a fully initialized script element of type <b>Undefined</b>.
-	 * <br /><br />
-	 * Note: Script variables are unique for the Undefined type.
-	 * <br /><br />
-	 * Warning: <i>Undefined variables cannot perform any operations other than
-	 * deletion, assignment, type testing, constant testing.</i>
+	 * <b>Script Type Constructor: Undefined</b><br />
+	 * Undefined() is an Undefined type generator, which can reliably generate
+	 * a Script instance of Undefined type.
 	 */
 	public static final Script Undefined() {
 		
@@ -346,255 +335,228 @@ public class Script {
 	}
 	
 	/**
-	 * <b>Script Type Constructor</b><br />
-	 * Null() returns a fully initialized script element of type <b>Null</b>.
-	 * <br />
-	 * Note: Script variables are unique for the Null type.
+	 * <b>Script Type Constructor: Null</b><br />
+	 * Null() is a Null type generator, which can reliably generate a Script
+	 * instance of Null type.
 	 */
 	public static final Script Null() {
 
 		/** Native acceleration */
-		return new Script(null, Type.Null);				//The Starting Point of All Script Elements
+		return new Script(null, Type.Null);
 	}
 	
 	/**
-	 * <b>Script Type Constructor</b><br />
-	 * String() returns a Script element of type <b>String</b>.<br />
-	 * The generated Script::String will be the same as the string in the parameter.
+	 * <b>Script Type Constructor: String</b><br />
+	 * String() is a String type generator, which can reliably generate a Script
+	 * instance of String type.
 	 * <br /><br />
-	 * Warning: <i>If the incoming object is null, String() generates <b>an empty string</b></i>.
+	 * <i>String() requires a string as a parameter to be used as the seed
+	 * of the generated Script instance. If null is passed in, String() treats
+	 * it as an empty string.</i>
 	 */
-	public static final Script String(String string) {
+	public static final Script String(java.lang.String string) {
 		
-		String nativeString = (string == null ? new String("") : string);
+		java.lang.String nativeString = (string == null ? "" : string);
 		/** Native acceleration */
-		return new Script(nativeString, Type.String);		//The Starting Point of All Script Elements
+		return new Script(nativeString, Type.String);
 	}
 	
 	/**
-	 * <b>Script Type Constructor</b><br />
-	 * Number() returns a Script element of type <b>Number</b>.<br />
-	 * The generated Script::Number will be the same as the number in the parameter.
+	 * <b>Script Type Constructor: Number</b><br />
+	 * Number() is a Number type generator, which can reliably generate a Script
+	 * instance of Number type.
 	 * <br /><br />
-	 * Warning: <i>If the incoming object is null, Number() generates a Script::Number
-	 * <br />with the number <b>0</b></i>.
+	 * <i>Number() requires an integer as a parameter to be used as the seed of
+	 * the generated Script instance. If null is passed in, Number() treats it as 0.</i>
 	 */
-	public static final Script Number(Integer number) {
+	public static final Script Number(java.lang.Integer number) {
 		
-		Integer nativeNumber = (number == null ? Integer.valueOf(0) : number);
+		java.lang.Integer nativeNumber = (number == null ? java.lang.Integer.valueOf(0) : number);
 		/** Native acceleration */
-		return new Script(nativeNumber, Type.Number);		//The Starting Point of All Script Elements
+		return new Script(nativeNumber, Type.Number);
 	}
 	
 	/**
-	 * <b>Script Type Constructor</b><br />
-	 * Boolean() returns a Script element of type <b>Boolean</b>.<br />
-	 * The generated Script::Boolean will be the same as the truth in the parameter.
+	 * <b>Script Type Constructor: Boolean</b><br />
+	 * Boolean() is a Boolean type generator, which can reliably generate a Script
+	 * instance of Boolean type.
 	 * <br /><br />
-	 * Warning: <i>If the incoming object is null, Boolean() generates a Script::Boolean
-	 * <br />with the booelan value <b>false</b></i>.
+	 * <i>Boolean() requires a truth value as a parameter to be used as the seed of the
+	 * generated Script instance. If null is passed in, Boolean() treats it as false.</i>
 	 */
-	public static final Script Boolean(Boolean truth) {
+	public static final Script Boolean(java.lang.Boolean truth) {
 		
-		Boolean nativeBoolean = (truth == null ? Boolean.FALSE : truth);
+		java.lang.Boolean nativeBoolean = (truth == null ? java.lang.Boolean.FALSE : truth);
 		/** Native acceleration */
-		return new Script(nativeBoolean, Type.Boolean);	//The Starting Point of All Script Elements
+		return new Script(nativeBoolean, Type.Boolean);
 	}
 	
 	/**
-	 * <b>Script Type Constructor</b><br />
-	 * Function() returns a Script element of type <b>Function</b>.<br />
-	 * The essence of a function is a pointer to an object that contains
-	 * an override of the run method.
+	 * <b>Script Type Constructor: Function</b><br />
+	 * Function() is a Function type generator, which can reliably generate a Script
+	 * instance of Function type.
 	 * <br /><br />
-	 * Warning: <i>You can pass in an instance of a subclass of Script in which its 
-	 * <b>run(Script)</b> method and <b>toString()</b> method are rewritten.
-	 * <br />
-	 * Once null is passed in, Function automatically generates an empty function.</i>
+	 * <i>Function() requires an instance of a class that implements the Functional
+	 * interface to be used as a parameter to seed the generated Script instance.
+	 * If null is passed in, Function() creates an empty function.</i>
+	 * <br /><br />
+	 * The incoming function will be rebuilt by calling the default constructor of its class.
+	 * The rebuilding may fail and "Runtime Exception" will be thrown when it fails.
 	 */
-	public static final Script Function(Script function) {
+	public static final Script Function(Functional functional) {
+		
+		Functional nativeFunction = (functional == null ? Script.NullFunction : functional);
+		
+		/** Function Reconstruction: Generate a new instance of the class in which the incoming instance resides */
+		try {
+			java.lang.reflect.Constructor<? extends Functional> nativeConstructor =
+					nativeFunction.getClass().getDeclaredConstructor();
+			nativeConstructor.setAccessible(true); nativeFunction = nativeConstructor.newInstance();
+		} catch (java.lang.Exception e) {
+			throw new java.lang.RuntimeException(
+					"Unable to reconstruct functions, Unresolved errors"
+			);
+		}
+		
 		/** Native acceleration */
-		Script nativeScript = new Script(null, Type.Function);				//The Starting Point of All Script Elements
-		
-		/** The essence of a function is a pointer to an object that contains an override of the run method */
-		nativeScript.script = function == null ? new Script() {
-			@Override
-			public void run(Script res) {}
-			
-			@Override
-			public String toString() {
-				return "System Null Function";
-			}
-		} : function;
-		
-		return nativeScript;
+		return new Script(nativeFunction, Type.Function);
 	}
 	
 	/**
-	 * <b>Script Type Constructor</b><br />
-	 * Pointer() returns a Script element of type <b>Pointer</b>.<br />
-	 * Construct a pointer to any object that can even be Script.
+	 * <b>Script Type Constructor: Pointer</b><br />
+	 * Pointer() is a Pointer type generator, which can reliably generate a Script
+	 * instance of Pointer type.
 	 * <br /><br />
-	 * Warning: <i>If null is passed in, Pointer points the pointer to Script.Undefined()</i>.
+	 * <i>Pointer() accepts instances of any class as parameters and uses them as seeds of
+	 * generated Script instances. If null is passed in, Pointer() treats them as Script.Undefined().</i>
 	 */
-	public static final Script Pointer(Object object) {
+	public static final Script Pointer(java.lang.Object object) {
+		
+		java.lang.Object nativePointer = (object == null ? Script.Undefined() : object);
 		/** Native acceleration */
-		Script nativeScript = new Script(Script.Undefined(), Type.Pointer);	//The Starting Point of All Script Elements
-		
-		if (object != null) nativeScript.script = object;
-		
-		return nativeScript;
+		return new Script(nativePointer, Type.Pointer);
 	}
 	
 	/**
-	 * <b>Script Type Constructor</b><br />
-	 * Array() returns a Script element of type <b>Array</b>.
+	 * <b>Script Type Constructor: Array</b><br />
+	 * Array() is an Array type generator, which can reliably generate a Script
+	 * instance of Array type.
 	 * <br /><br />
-	 * This method is the native construction method of <i>Script::Array</i> and
-	 * the starting point constructor of all Script::Array.
-	 * <br /><br />
-	 * If the specified parameter is <i>null or no</i>, Array() constructs an 
-	 * <i>empty array</i>.
-	 * <br /><br />
-	 * Array() builds a Script Array in the order in which the parameters are passed in,
-	 * The time complexity of construction is generally <b><i>O(n)</i></b>.
-	 * <br /><br />
-	 * Array() constructs arrays in the same way as the following code:
-	 * <blockquote><pre>
-	 *     for (int index = 0; index < objects.length; index++) {
-	 *         this.append(new Script(objects[index]));
-	 *     }
-	 * </pre></blockquote>
-	 * Obviously, Array() constructs <i>copies</i> of each object in turn.
+	 * <i>Array() accepts an infinite number of instances of any class as parameters and uses
+	 * them as seeds of generated Script instances. Array() will use constructors that can infer
+	 * types to sequentially generate their new Script instances one by one, and add new
+	 * instances to the generated array.<br />
+	 * If null or no parameters are passed in, Array() will create an empty array.<i>
 	 */
-	public static final Script Array(Object... objects) {
-		/** Native acceleration */
-		Script nativeScript = new Script(null, Type.Array);					//The Starting Point of All Script Elements
+	public static final Script Array(java.lang.Object... objects) {
 		
-		//Dependence on Java Standard Library
-		java.util.ArrayList<Script> nativeArray = new java.util.ArrayList<Script>();
+		java.util.Vector<Script> nativeArray = new java.util.Vector<Script>();
 		
-		/** Array generation */
-		if (objects != null && objects.length != 0) {	//Create non-empty arrays
-			for (int index = 0; index < objects.length; index++) {
+		/** Array generation: Adding new instances of type inference in sequence */
+		if (objects != null && objects.length != 0) {
+			for (int index = 0; index < objects.length; ++index) {
 				nativeArray.add(new Script(objects[index]));
 			}
 		}
-		nativeScript.script = nativeArray;
 		
-		return nativeScript;
+		/** Native acceleration */
+		return new Script(nativeArray, Type.Array);
 	}
 	
 	/**
-	 * <b>Script Type Constructor</b><br />
-	 * Object() returns a Script element of type <b>Object</b>.
+	 * <b>Script Type Constructor: Object</b><br />
+	 * Object() is an Object type generator, which can reliably generate a Script
+	 * instance of Object type.
 	 * <br /><br />
-	 * This method is the native construction method of <i>Script::Object</i> and
-	 * the starting point constructor of all Script::Object.
-	 * <br /><br />
-	 * Note: <i>You can call <b>mem()</b> to add key-value pairs to Object,
-	 * or you can call <b>delete()</b> to delete the corresponding key-value pairs.</i>
-	 * <br /><br />
-	 * Sample code:
-	 * <blockquote><pre>
-	 *     Script object = Script.Object();		//object.typeof() equals "Object"
-	 *     
-	 *     object.mem("test").let("value");		//Adding key-value pairs <"test", "value">
-	 *     
-	 *     object.mem("test").delete();		//Delete the key "test" and its corresponding value
-	 * </pre></blockquote>
-	 * You can also call the clear() method to clear all key-value pairs.
+	 * <i>Object() does not accept any parameters, and Object() returns an empty
+	 * Script instance of Object type.</i>
 	 */
 	public static final Script Object() {
-		/** Native acceleration */
-		Script nativeScript = new Script(null, Type.Object);					//The Starting Point of All Script Elements
 		
-		//Dependence on Java Standard Library
 		java.util.Map<Script, Script> nativeObject = new java.util.HashMap<Script, Script>();
-		
-		nativeScript.script = nativeObject;
-		
-		return nativeScript;
+		/** Native acceleration */
+		return new Script(nativeObject, Type.Object);
 	}
+	
 	/**********************************************************/
 	
-
+	
+	
+	
 	/**********************************************************
 	             Convenient Construction of Script
 	 **********************************************************/
 	
 	/**
-	 * <b>Script Convenient Construction</b><br />
-	 * ListObject() allows you to quickly construct an Object using a variable-length parameter list.
+	 * <b>Script Convenient Construction: Object</b><br />
+	 * ListObject() allows you to build an Object with even instances, and ListObject()
+	 * picks the first as the key and the second as the value of each pair of instances.
 	 * <br /><br />
-	 * You can use the following code to complete this convenient operation:
-	 * <blockquote><pre>
-	 *     Script object = Script.ListObject(
-	 *         "attribute", "features",
-	 *         "key", "value"
-	 *     );
-	 * </pre></blockquote>
-	 * ListObject receives even numbers of parameters and divides them into two parts in order.
-	 * The first will be used as a key and the second will be used as a value.
+	 * <i>ListObject() infers and instantiates key and value into script instances, when
+	 * null or no parameters are passed in, ListObject() returns an empty Script instance
+	 * of Object type.</i>
+	 * <br /><br />
+	 * <i>Not all parameters can be used as key types, such as Undefined, Function, Pointer.
+	 * In other words, the types that can be used as keys must be serializable.</i>
 	 */
-	public static final Script ListObject(Object... objects) {
+	public static final Script ListObject(java.lang.Object... objects) {
 		
-		/** Check the validity of parameters */
-		if (objects == null || objects.length % 2 != 0) {						//Judging Legitimacy
+		if (objects == null || objects.length == 0) {
+			return Script.Object();
+		}
+		
+		if (objects.length % 2 != 0) {
 			throw new IllegalArgumentException(
-					"Parameters cannot be null and must be even"
+					"ListObject() requires even numbers of parameters"
 			);
 		}
 		
-		/** Native acceleration */
-		Script nativeScript = new Script(null, Type.Object);					//The Starting Point of All Script Elements
-		
-		/** Object generation */
-		Script key;
-		//Dependence on Java Standard Library
+		Script key;							//Temporarily retain key references
 		java.util.Map<Script, Script> nativeObject = new java.util.HashMap<Script, Script>();
 		for (int i = 0; i < objects.length; i += 2) {
 			if (!checkKeyType(key = new Script(objects[i]))) {
-				throw new RuntimeException(
+				throw new java.lang.RuntimeException(
 						"Key Script " + key + " cannot be an Object key"
 				);
 			}
 			nativeObject.put(key, new Script(objects[i + 1]));
 		}
-		nativeScript.script = nativeObject;
 		
-		return nativeScript;
+		/** Native acceleration */
+		return new Script(nativeObject, Type.Object);
 	}
 	
 	/**
-	 * <b>Script Convenient Construction</b><br />
-	 * TemplateObject() allow you to construct a template for an object with variable length parameters.
+	 * <b>Script Convenient Construction: Object</b><br />
+	 * TemplateObject() receives a series of parameters and generates an Object with
+	 * these parameters as keys, whose corresponding values are Null.
 	 * <br /><br />
-	 * TemplateObject() will construct an object that uses all the contents specified in the parameter
-	 * as keys, and their values will be initialized to Null.
+	 * <i>Not all parameters can be used as key types, such as Undefined, Function, Pointer.
+	 * In other words, the types that can be used as keys must be serializable.</i>
 	 */
-	public static final Script TemplateObject(Object... keys) {
-		/** Native acceleration */
-		Script nativeScript = new Script(null, Type.Object);					//The Starting Point of All Script Elements
+	public static final Script TemplateObject(java.lang.Object... keys) {
 		
-		Script key;
-		//Dependence on Java Standard Library
+		if (keys == null || keys.length == 0) {
+			return Script.Object();
+		}
+		
+		Script key;							//Temporarily retain key references
 		java.util.Map<Script, Script> nativeObject = new java.util.HashMap<Script, Script>();
-		
-		/** Object generation */
-		for (int i = 0; keys != null && i < keys.length; i++) {
+		for (int i = 0; i < keys.length; ++i) {
 			if (!checkKeyType(key = new Script(keys[i]))) {
-				throw new RuntimeException(
+				throw new java.lang.RuntimeException(
 						"Key Script " + key + " cannot be an Object key"
 				);
 			}
-			nativeObject.put(key, Script.Null);
+			nativeObject.put(key, Script.Null());
 		}
-		nativeScript.script = nativeObject;
 		
-		return nativeScript;
+		/** Native acceleration */
+		return new Script(nativeObject, Type.Object);
 	}
 	/**********************************************************/
+	
+	
 	
 	
 	/**********************************************************
@@ -602,90 +564,80 @@ public class Script {
 	 **********************************************************/
 	
 	/**
-	 * <i>Script::checkConstant(String)</i><br />
+	 * <b>Script Common Method: checkConstant(String caller)</b><br />
 	 * checkConstant() checks whether the current variable is a constant,
-	 * and if so, checkConstant() throws an exception.
+	 * and if so, checkConstant() throws RuntimeException.
 	 */
-	private final void checkConstant(String caller) {
+	private final void checkConstant(java.lang.String caller) {
 		if (this.isConstant()) {
-			throw new RuntimeException(
+			throw new java.lang.RuntimeException(
+					"IllegalFunctionInvocationException\n\t" +
 					caller + " method cannot be invoked on a constant"
 			);
 		}
 	}
 	
 	/**
-	 * <i>Script::checkUndefined()</i><br />
+	 * <b>Script Common Method: checkUndefined(String caller)</b><br />
 	 * checkUndefined() checks whether the current variable is an Undefined variable,
-	 * and if so, checkUndefined() throws an exception.
+	 * and if so, checkUndefined() throws RuntimeException.
 	 */
-	private final void checkUndefined(String caller) {
-		if (this.type == Type.Undefined) {		//Native Code Acceleration
-			throw new RuntimeException(
+	private final void checkUndefined(java.lang.String caller) {
+		if (this.type == Type.Undefined) {
+			throw new java.lang.RuntimeException(
+					"IllegalFunctionInvocationException\n\t" +
 					caller + " method cannot be invoked on an Undefined variable"
 			);
 		}
 	}
 	
 	/**
-	 * <i>Script::checkType()</i><br />
-	 * checkType() method is used to check whether a type can be used to
-	 * legally invoke a specified method.
+	 * <b>Script Common Method: checkType(String caller, Type test)</b><br />
+	 * checkType() is used to check whether it is legal to invoke a function of a
+	 * certain type on the current Script variable (or constant).
 	 */
-	private final void checkType(String caller, Type test) {
-		if (this.type != test) {				//Native Code Acceleration
-			throw new RuntimeException(
-					caller + " method cannot be invoked on non-" + test.toString()
-			);	
+	private final void checkType(java.lang.String caller, Type... test) {
+		for (int it = 0; it < test.length; ++it) {
+			if (this.type == test[it]) return;
 		}
+		throw new java.lang.RuntimeException(
+				"IllegalFunctionInvocationException\n\t" +
+				caller + " method cannot be invoked on " + this.type.toString() + " variable"
+		);	
 	}
 	
 	/**
-	 * <i>Script::typeof()</i><br />
-	 * Returns a string that refers to the current script element type.
+	 * <b>Script Common Method: typeof()</b><br />
+	 * Returns a string that refers to the current Script element type.
 	 */
-	public final String typeof() {
+	public final java.lang.String typeof() {
 		return this.type.toString();
 	}
 	
 	/**
-	 * <i>Script::typeof(String)</i><br />
-	 * Test whether the type of the current script element is equivalent
+	 * <b>Script Common Method: typeof(String testType)</b><br />
+	 * Test whether the type of the current Script element is equivalent
 	 * to the incoming string.
 	 * <br /><br />
-	 * The test process is equivalent to the following code:
-	 * <blockquote><pre>
-	 *     return this.typeof().equalsIgnoreCase(testType);
-	 * </pre></blockquote>
-	 * Warning: <i>The test process ignores case letters</i>.
+	 * <i>The test process ignores case letters.</i>
 	 */
-	public final boolean typeof(String testType) {
+	public final boolean typeof(java.lang.String testType) {
 		return this.typeof().equalsIgnoreCase(testType);
 	}
 	
 	/**
-	 * <i>Script::isConstant()</i><br />
-	 * Gets the constant properties of the current script element.<br />
-	 * If it is a constant, isConstant() returns true, otherwise false.
+	 * <b>Script Common Method: isConstant()</b><br />
+	 * Returns whether a Script instance is a constant.
 	 */
 	public final boolean isConstant() {
-		if (this.type == Type.Undefined) {		//Native Code Acceleration
-			return false;				//Undefined variables cannot be constants.
-		}
-		
 		return this.isConstant;
 	}
 	
 	/**
-	 * <i>Script::delete()</i><br />
-	 * Reset the current Script element.<br />
-	 * The type of the deleted script element changes to <b>Undefined</b>.
-	 * <br /><br />
-	 * Specifically: <i>Calling the delete() method on a member of
-	 * Script::Object deletes that member from Object</i>.
+	 * <b>Script Common Method: delete()</b><br />
+	 * Remove all data from a Script instance and set its type to Undefined.
 	 */
 	public final void delete() {
-		//Check Constant Legitimacy
 		this.checkConstant("delete()");
 		
 		this.script = null;
@@ -693,15 +645,10 @@ public class Script {
 	}
 	
 	/**
-	 * <i>Script::del()</i><br />
-	 * Reset the current Script element.<br />
-	 * The type of the deleted script element changes to <b>Undefined</b>.
-	 * <br /><br />
-	 * Specifically: <i>Calling the del() method on a member of
-	 * Script::Object deletes that member from Object</i>.
+	 * <b>Script Common Method: del()</b><br />
+	 * Relocation to this.delete().
 	 */
 	public final void del() {
-		//Relocation
 		this.delete();
 	}
 	
@@ -716,9 +663,9 @@ public class Script {
 	 * calling this method and achieves the same effect:</i>
 	 * <blockquote><pre>
 	 *     Script script = new Script("test");
-	 *     Script thisClone = script.Clone();			//This method
-	 *     Script consturctorClone = new Script(script);	//Using constructive methods
-	 *     Script relocationClone = new Script().Clone(script);//Use relocation
+	 *     Script thisClone = script.Clone();					//This method
+	 *     Script consturctorClone = new Script(script);		//Using constructive methods
+	 *     Script relocationClone = new Script().Clone(script);	//Use relocation
 	 * </pre></blockquote>
 	 * The latter two methods are faster than the present one. In fact, the gap is very small.
 	 */
@@ -742,25 +689,35 @@ public class Script {
 	 * script element is not allowed</i>.
 	 */
 	public final Script Clone(Script source) {
-		//Check Constant Legitimacy
 		this.checkConstant("Clone(Script)");
 		
-		/** Cloning also belongs to an assignment */
+		if (source == null) {
+			return this.let(null);
+		}
 		
-		if (source == null) {					//null is equivalent to Script.Null
-			this.script = null;
-			this.type = Type.Null;				//Type relocation
-			return this;						//Clone completed
+		/* Types that must be copied and reset */
+		if (source.type == Type.Function) {
+			Script nativeFunction = (Script)source.script;
+			try {
+				java.lang.reflect.Constructor<? extends Script> nativeConstructor = nativeFunction.getClass().getDeclaredConstructor();
+				nativeConstructor.setAccessible(true);
+				this.script = nativeConstructor.newInstance();
+			} catch (Exception e) {
+				throw new RuntimeException(
+						"Unable to reconstruct functions, unresolved errors"
+				);
+			}
+			this.type = Type.Function;
 		}
 		
 		/* Composite data types */
-		if (source.type == Type.Array) {		//Array parsing
+		else if (source.type == Type.Array) {		//Array parsing
 			
 			@SuppressWarnings("unchecked")
 			//Get the data structure itself of the target Array
-			java.util.ArrayList<Script> externArray = (java.util.ArrayList<Script>)source.script;
+			java.util.Vector<Script> externArray = (java.util.Vector<Script>)source.script;
 			java.util.Iterator<Script> externArrayIterator = externArray.iterator();	//Obtaining iterators
-			java.util.ArrayList<Script> nativeArray = new java.util.ArrayList<Script>();
+			java.util.Vector<Script> nativeArray = new java.util.Vector<Script>();
 			
 			/* Iterate the original Array sequentially */
 			while (externArrayIterator.hasNext()) {
@@ -771,12 +728,11 @@ public class Script {
 			}
 			
 			this.script = nativeArray;
-			this.type = Type.Array;				//Type relocation
-			return this;						//Clone completed
+			this.type = Type.Array;					//Type relocation
 		}
 		
 		/* Composite data types */
-		if (source.type == Type.Object) {		//Object parsing
+		else if (source.type == Type.Object) {		//Object parsing
 			
 			@SuppressWarnings("unchecked")
 			//Get the data structure itself of the target Object
@@ -794,7 +750,7 @@ public class Script {
 				nativeEntry = externObjectIterator.next();
 				
 				if (nativeEntry.getValue().type == Type.Undefined) {
-					continue;					//Undefined type key pairs will not be copied
+					continue;						//Undefined type key pairs will not be copied
 				}
 				
 				/**
@@ -804,16 +760,15 @@ public class Script {
 			}
 
 			this.script = nativeObject;
-			this.type = Type.Object;			//Type relocation
-			return this;						//Clone completed
+			this.type = Type.Object;				//Type relocation
+		} else {
+			/**
+			 * Type as:	( those.script is constant )
+			 * { Undefined, Null, String, Number, Boolean, Pointer }
+			 */
+			this.script = source.script;
+			this.type = source.type;
 		}
-		
-		/**
-		 * Type as:	( those.script is constant )
-		 * { Undefined, Null, String, Number, Boolean, Function, Pointer }
-		 */
-		this.script = source.script;
-		this.type = source.type;
 		
 		return this;
 	}
@@ -842,19 +797,19 @@ public class Script {
 		if (object == null) {
 			this.script = null;
 			this.type = Type.Null;
-			return this;				//Initialization complete
+			return this;						//Initialization complete
 		}
 		
 		/** Equivalent to cloning a new script element */
-		if (object instanceof Script) {		//Clonal structure
+		if (object instanceof Script) {			//Clone structure
 			/** Cloning a copy of the current instance using the target script instance */
 			this.Clone((Script)object);			//Call the cloning method
-			return this;				//Initialization complete
+			return this;						//Initialization complete
 			
 			/** Building a new script element with a given Java member */
 		} else {
 			
-			/** let() type conversion when accepting assignments of only { int, boolean, String} */
+			/** let() type conversion when accepting assignments of only { int, boolean, String } */
 			if (object instanceof Integer || object instanceof Boolean || object instanceof String) {
 				this.script = object;
 				this.type = object instanceof Integer ? Type.Number : object instanceof Boolean ? Type.Boolean : Type.String;
@@ -878,18 +833,19 @@ public class Script {
 	 * Indefinite length format:<br />
 	 * <i>String = s[Dec]*[string], Array = a[Dec]*[arrays], Object = o[Dec]*[objects]</i>
 	 */
-	private final java.util.ArrayList<Byte> passbytes(java.util.ArrayList<Byte> bytes) {
+	private final java.util.Vector<Byte> passbytes(java.util.Vector<Byte> bytes) {
 		
 		/** Serialization type checking */
 		if (this.type == Type.Pointer || this.type == Type.Function) {
 			throw new RuntimeException(
-					"Unsupported Serialization Type: " + this.typeof()
+					"Unsupported Serialization Type: " + this.typeof() + 
+					"\tDetails: " + this.toString()
 			);
 		}
 		
 		/** Determine whether the array is initialized for the first time */
 		if (bytes == null) {
-			bytes = new java.util.ArrayList<Byte>();
+			bytes = new java.util.Vector<Byte>();
 		}
 		
 		/** Undefined is identified as u */
@@ -936,7 +892,7 @@ public class Script {
 		/** Combination Types: Serialization of Arrays */
 		if (this.type == Type.Array) {
 			@SuppressWarnings("unchecked")
-			java.util.ArrayList<Script> nativeArray = (java.util.ArrayList<Script>)this.script;
+			java.util.Vector<Script> nativeArray = (java.util.Vector<Script>)this.script;
 			try {
 				bytes.add((byte)'a');
 				String length = String.valueOf(nativeArray.size());
@@ -984,7 +940,7 @@ public class Script {
 	public final byte[] passbytes() {
 		
 		/** Serialization Generator */
-		java.util.ArrayList<Byte> arrayBytes = this.passbytes(null);
+		java.util.Vector<Byte> arrayBytes = this.passbytes(null);
 		
 		/** Sequence Stream Reconstruction */
 		byte[] bytes = new byte[arrayBytes.size()];
@@ -1042,7 +998,7 @@ public class Script {
 				length = Integer.valueOf(new String(lengthBuff, 0, lengthSeeker - 1, "ASCII"));
 				nativeScript = Script.Array();
 				@SuppressWarnings("unchecked")
-				java.util.ArrayList<Script> nativeArray = (java.util.ArrayList<Script>)nativeScript.script;
+				java.util.Vector<Script> nativeArray = (java.util.Vector<Script>)nativeScript.script;
 				while (length-- > 0) {
 					nativeArray.add(Script.Load(bytes));
 				}
@@ -1144,7 +1100,7 @@ public class Script {
 		/* Composite data types */
 		if (this.type == Type.Array) {				//Array parsing
 			@SuppressWarnings("unchecked")
-			java.util.ArrayList<Script> nativeArray = (java.util.ArrayList<Script>)this.script;
+			java.util.Vector<Script> nativeArray = (java.util.Vector<Script>)this.script;
 			java.util.Iterator<Script> nativeArrayIterator = nativeArray.iterator();	//Obtaining iterators
 			
 			nativeString.append('[');				//Parsing process
@@ -1222,9 +1178,9 @@ public class Script {
 		/* For Array */
 		if (element.type == Type.Array) {
 			@SuppressWarnings("unchecked")
-			java.util.ArrayList<Script> nativeArray = (java.util.ArrayList<Script>)this.script;
+			java.util.Vector<Script> nativeArray = (java.util.Vector<Script>)this.script;
 			@SuppressWarnings("unchecked")
-			java.util.ArrayList<Script> externArray = (java.util.ArrayList<Script>)element.script;
+			java.util.Vector<Script> externArray = (java.util.Vector<Script>)element.script;
 			
 			/* Size comparison */
 			if (nativeArray.size() != externArray.size()) {
@@ -1424,7 +1380,7 @@ public class Script {
 	 * <br /><br />Just like the following code:
 	 * <pre><code>
 	 *     Script function = Script.Function(new Script() {
-	 *         public void run(Script res) {
+	 *         public void run(Script... res) {
 	 *             System.out.println(res);
 	 *         }
 	 *     });
@@ -1436,7 +1392,7 @@ public class Script {
 	 * Of course, functions can also be used as Script elements to participate in
 	 * the construction of complex data structures and the transfer of parameters.
 	 */
-	public void run(Script res) {
+	public Script run(Object... res) {
 
 		//Check the validity of the definition of Script elements
 		this.checkUndefined("Function::run()");
@@ -1445,8 +1401,21 @@ public class Script {
 		this.checkType("Function::run()", Type.Function);
 		
 		/** Relocation, call up function */
-		Script nativeFunction = (Script)this.script;
-		nativeFunction.run(res);
+		Functional nativeFunction = (Functional)this.script;
+		
+		/**
+		 * Parametric Standard Format Processing
+		 */
+		if (res == null || res.length == 0) {
+			return nativeFunction.run();		//For invalid parameters, call the function with zero parameters
+		}
+		
+		//Format Processing
+		for (int it = 0; it < res.length; it++) {
+			res[it] = new Script(res[it]);
+		}
+		
+		return nativeFunction.run(res);
 	}
 	
 	/**********************************************************/
@@ -1456,7 +1425,11 @@ public class Script {
 	        Native Pointer Application Program Interface
 	 **********************************************************/
 	
-	public Object Access() {
+	/**
+	 * <i>Pointer::access()</i><br />
+	 * Gets the value pointed to by a pointer.<br />
+	 */
+	public Object access() {
 
 		//Check the validity of the definition of Script elements
 		this.checkUndefined("Pointer::Access()");
@@ -1466,6 +1439,41 @@ public class Script {
 		
 		/** Return pointer object */
 		return this.script;
+	}
+	
+	/**
+	 * <i>Pointer::extract()</i><br />
+	 * Unconditional cloning method on pointer.
+	 * <br /><br />
+	 * When the pointer points to a target that is a script element,
+	 * Extract() copies all the features of the target element (excluding
+	 * constant attributes, which must be extraordinary) to itself.
+	 * <br /><br />
+	 * For Basic Script Element: <i>{ Undefined, Null, String, Number, Boolean, Function, Pointer }</i>,
+	 * Extract() is just a simple clone, which is equivalent to calling the Clone method on himself.
+	 * <br />
+	 * For Combination Script Element: <i>{ Array, Object }</i>,
+	 * Extract() gets the element entity of the type, that is, the current pointer shares its
+	 * internal data members with the target object.
+	 */
+	public Script extract() {
+
+		//Check the validity of the definition of Script elements
+		this.checkUndefined("Pointer::Extract()");
+		
+		//Check the validity of Script element types
+		this.checkType("Pointer::Extract()", Type.Pointer);
+		
+		/**
+		 * Forced cloning
+		 */
+		if (this.script instanceof Script) {
+			Script nativeScript = (Script)this.script;
+			this.script = nativeScript.script;
+			this.type = nativeScript.type;
+		}
+		
+		return this;
 	}
 	
 	/**********************************************************/
@@ -1526,24 +1534,35 @@ public class Script {
 	
 	/**
 	 * <i>Array::length()</i><br />
-	 * Get the length of an array.
-	 * <br /><br />
-	 * Warning: <i>This method is thread-safe</i>.
+	 * Get the length of an array.The array of Script is implemented with variable length.
 	 */
 	@SuppressWarnings("unchecked")
 	public final int length() {
-		
-		//Check the validity of the definition of Script elements
 		this.checkUndefined("Array::length()");
-		
-		//Check the validity of Script element types
 		this.checkType("Array::length()", Type.Array);
 		
-		/**
-		 * Array:: int: { get Array Size () }
-		 * Get the length of the array
-		 */
-		return ((java.util.ArrayList<Script>)this.script).size();
+		return ((java.util.Vector<Script>)this.script).size();
+	}
+	
+	/**
+	 * <i>Array::checkIndex(int)</i><br />
+	 * Array subscript crossover checker.
+	 * The checker will operate on the absolute value subscripts and check the array
+	 * crossing the bounds. The checker returns the subscripts when checking, and
+	 * throws an exception instead.
+	 */
+	private int checkIndex(int get_index) {
+		int _size = this.length();
+		int calc_index = get_index < 0 ? get_index + _size : get_index;
+
+		if (calc_index < 0 || calc_index >= _size) {
+			throw new RuntimeException(
+				"ArrayIndexOutOfBoundsException\n\t" +
+				"index: " + get_index + ", the range of the Array is [0, " + (_size - 1) + "]"
+			);
+		}
+
+		return calc_index;
 	}
 	
 	/**
@@ -1554,19 +1573,11 @@ public class Script {
 	 * <i>The element added by this method is a copy of the incoming object</i>.
 	 */
 	public final int append(Object object) {
-		
-		//Check the validity of the definition of Script elements
 		this.checkUndefined("Array::append(Object)");
-		
-		//Check the validity of Script element types
 		this.checkType("Array::append(Object)", Type.Array);
 		
-		/**
-		 * Array:: int: { append element (Script) }
-		 * Add an element to the end of the array
-		 */
 		@SuppressWarnings("unchecked")
-		java.util.ArrayList<Script> nativeArray = (java.util.ArrayList<Script>)this.script;
+		java.util.Vector<Script> nativeArray = (java.util.Vector<Script>)this.script;
 		nativeArray.add(new Script(object));
 		return nativeArray.size();
 	}
@@ -1574,32 +1585,42 @@ public class Script {
 	/**
 	 * <i>Array::index(int)</i><br />
 	 * Gets the element (directly referenced) of the specified subscript in the array.
-	 * <br /><br />
-	 * Warning: <i>This method is thread-safe</i>.<br />
+	 * <br />
 	 * <i>Negative index can be addressable in reverse order</i>.
 	 */
-	public final Script index(int index) {
-		
-		//Check the validity of the definition of Script elements
+	public final Script index(int get_index) {
 		this.checkUndefined("Array::index(int)");
-		
-		//Check the validity of Script element types
 		this.checkType("Array::index(int)", Type.Array);
 		
-		/**
-		 * Array:: Script: { get Array member (int) }
-		 * Use indexs to get Array members
-		 */
 		@SuppressWarnings("unchecked")
-		java.util.ArrayList<Script> nativeArray = (java.util.ArrayList<Script>)this.script;
-		index = index < 0 ? index + nativeArray.size() : index;
+		java.util.Vector<Script> nativeArray = (java.util.Vector<Script>)this.script;
+		int calc_index = this.checkIndex(get_index);
+		return nativeArray.get(calc_index);
+	}
+	
+	/**
+	 * <i>Array::insert(int)</i><br />
+	 * Insert an element into an array at an existing subscript.
+	 * <br />
+	 * <i>Negative index can be addressable in reverse order</i>.
+	 */
+	public final int insert(int insert_index, Object object) {
+		this.checkUndefined("Array::insert(int)");
+		this.checkType("Array::insert(int)", Type.Array);
 		
-		if (index < 0 || index >= nativeArray.size()) {
-			throw new ArrayIndexOutOfBoundsException(
-					"index: " + index + ", the range of the Array is [0, " + (nativeArray.size() - 1) + "]"
-			);
-		}
-		return nativeArray.get(index);
+		@SuppressWarnings("unchecked")
+		java.util.Vector<Script> nativeArray = (java.util.Vector<Script>)this.script;
+		int calc_index = this.checkIndex(insert_index);
+		nativeArray.add(calc_index, new Script(object));
+		return nativeArray.size();
+	}
+	
+	public final Script set(int set_index, Object object) {
+		//同步的置数函数
+		@SuppressWarnings("unchecked")
+		java.util.Vector<Script> nativeArray = (java.util.Vector<Script>)this.script;
+		
+		return nativeArray.set(set_index, new Script(object));
 	}
 	
 	/**
@@ -1610,29 +1631,38 @@ public class Script {
 	 * Warning: <i>This method is thread-safe</i>.<br />
 	 * <i>Negative index can be addressable in reverse order</i>.
 	 */
-	public final int remove(int index) {
-		
-		//Check the validity of the definition of Script elements
+	public final int remove(int remove_index) {
 		this.checkUndefined("Array::remove(int)");
-		
-		//Check the validity of Script element types
 		this.checkType("Array::remove(int)", Type.Array);
 		
-		/**
-		 * Array:: int: { remove Array member (int) }
-		 * Use subscripts to remove array elements, which results in merging
-		 */
 		@SuppressWarnings("unchecked")
-		java.util.ArrayList<Script> nativeArray = (java.util.ArrayList<Script>)this.script;
-		index = index < 0 ? index + nativeArray.size() : index;
-		
-		if (index < 0 || index >= nativeArray.size()) {
-			throw new ArrayIndexOutOfBoundsException(
-					"index: " + index + ", the range of the Array is [0, " + (nativeArray.size() - 1) + "]"
-			);
-		}
-		nativeArray.remove(index);
+		java.util.Vector<Script> nativeArray = (java.util.Vector<Script>)this.script;
+		int calc_index = this.checkIndex(remove_index);
+		nativeArray.remove(calc_index);
 		return nativeArray.size();
+	}
+	
+	/**
+	 * <i>Array::toArray()</i><br />
+	 * Converting all elements of an Array into the form of an array.
+	 */
+	public final Script[] toArray() {
+
+		//Check the validity of the definition of Script elements
+		this.checkUndefined("Array::toArray()");
+		
+		//Check the validity of Script element types
+		this.checkType("Array::toArray()", Type.Array);
+
+		@SuppressWarnings("unchecked")
+		java.util.Vector<Script> nativeArray = (java.util.Vector<Script>)this.script;
+		
+		Object[] objectArrays = nativeArray.toArray();
+		Script[] scriptArrays = new Script[objectArrays.length];
+		for (int index = 0; index < objectArrays.length; index++) {
+			scriptArrays[index] = (Script)objectArrays[index];
+		}
+		return scriptArrays;
 	}
 	
 	/**
@@ -1647,7 +1677,7 @@ public class Script {
 		 * Delete the Undefined element in Array and the spaces will be merged.
 		 */
 		@SuppressWarnings("unchecked")
-		java.util.ArrayList<Script> nativeArray = (java.util.ArrayList<Script>)this.script;
+		java.util.Vector<Script> nativeArray = (java.util.Vector<Script>)this.script;
 		
 		for (int index = 0; index < nativeArray.size(); index++) {
 			if (nativeArray.get(index).type == Type.Undefined) {
@@ -1669,9 +1699,47 @@ public class Script {
 		 * Clear this array.
 		 */
 		@SuppressWarnings("unchecked")
-		java.util.ArrayList<Script> nativeArray = (java.util.ArrayList<Script>)this.script;
+		java.util.Vector<Script> nativeArray = (java.util.Vector<Script>)this.script;
 		nativeArray.clear();
 	}
+	
+	/****************   Functional function    ****************/
+	
+	public final int push(Object object) {
+		this.append(object);
+		return this.length();
+	}
+	
+	public final Script pop() {
+		return this.pop(-1);
+	}
+	
+	public final Script pop(int pop_index) {
+		Script element = this.index(pop_index);
+		this.remove(pop_index);
+		return element;
+	}
+	
+	public final Script top() {
+		return this.index(-1);
+	}
+	
+	public final int unshift(Object object) {
+		int _size = this.length();
+		if (_size == 0) {
+			this.append(object);
+		} else {
+			this.insert(0, object);
+		}
+		return _size + 1;
+	}
+	
+	public final Script shift() {
+		Script element = this.index(0);
+		this.remove(0);
+		return element;
+	}
+	
 	/**********************************************************/
 	
 	
@@ -1687,7 +1755,7 @@ public class Script {
 		}
 		if (key.type == Type.Array) {
 			@SuppressWarnings("unchecked")
-			java.util.ArrayList<Script> nativeArray = (java.util.ArrayList<Script>)key.script;
+			java.util.Vector<Script> nativeArray = (java.util.Vector<Script>)key.script;
 			for (Script it : nativeArray) {
 				if (!Script.checkKeyType(it)) return false;
 			}
@@ -1695,7 +1763,7 @@ public class Script {
 		if (key.type == Type.Object) {
 			@SuppressWarnings("unchecked")
 			java.util.Map<Script, Script> nativeObject = (java.util.Map<Script, Script>)key.script;
-			java.util.Iterator<Map.Entry<Script, Script>> nativeObjectIterator = nativeObject.entrySet().iterator();
+			java.util.Iterator<java.util.Map.Entry<Script, Script>> nativeObjectIterator = nativeObject.entrySet().iterator();
 			while (nativeObjectIterator.hasNext()) {
 				if (!Script.checkKeyType(nativeObjectIterator.next().getValue())) return false;
 			}
@@ -1712,14 +1780,9 @@ public class Script {
 	 * , Object(<u>Except: Undefined, Pointer, Function)</u> } </i>
 	 */
 	public Script mem(Object key) {
-
-		//Check the validity of the definition of Script elements
 		this.checkUndefined("Object::mem(Object)");
-		
-		//Check the validity of Script element types
 		this.checkType("Object::mem(Object)", Type.Object);
 		
-		//Exception Detection
 		Script objectKey = new Script(key);
 		if (!checkKeyType(objectKey)) {
 			throw new RuntimeException(
@@ -1743,6 +1806,27 @@ public class Script {
 	
 	/**
 	 * <i>Object::keySet()</i><br />
+	 * Gets all the keys in the current Script Object.(Significantly faster than staticKeySet())
+	 * <br /><br />
+	 * Warning: <i>This method relies on key-value mapping, and the operation of
+	 * Object may cause the iterator to fail.</i><br />
+	 * Specially, this method may return keys with the corresponding value of Undefined type.
+	 */
+	@SuppressWarnings("unchecked")
+	public java.util.Set<Script> keySet() {
+		this.checkUndefined("Object::keySet()");
+		this.checkType("Object::keySet()", Type.Object);
+		
+		/**
+		 * Object:: Set<Script>: { Get a collection of all the keys of Script::Object() }
+		 * Get a collection of all the keys of Script::Object
+		 */
+		java.util.Map<Script, Script> nativeObject = (java.util.Map<Script, Script>)this.script;
+		return nativeObject.keySet();
+	}
+	
+	/**
+	 * <i>Object::staticKeySet()</i><br />
 	 * Gets the set of keys for all non-Undefined values of a Script object.
 	 * <br /><br />
 	 * Warning: <i>This method actively clears invalid key-value pairs in the mapping
@@ -1750,19 +1834,15 @@ public class Script {
 	 * time and cost</i>.
 	 */
 	@SuppressWarnings("unchecked")
-	public java.util.Set<Script> keySet() {
-
-		//Check the validity of the definition of Script elements
-		this.checkUndefined("Object::keySet()");
-		
-		//Check the validity of Script element types
-		this.checkType("Object::keySet()", Type.Object);
+	public java.util.Set<Script> staticKeySet() {
+		this.checkUndefined("Object::staticKeySet()");
+		this.checkType("Object::staticKeySet()", Type.Object);
 		
 		//Clear all key-value pairs whose values are Undefined
 		this.Object$clean();
 		
 		/**
-		 * Object:: Set<Script>: { Get a collection of all the keys of Script::Object () }
+		 * Object:: Set<Script>: { Get a collection of all the keys of Script::Object() }
 		 * Get a collection of all the keys of Script::Object
 		 */
 		java.util.Map<Script, Script> nativeObject = (java.util.Map<Script, Script>)this.script;
@@ -1821,6 +1901,37 @@ public class Script {
 		java.util.Map<Script, Script> nativeObject = (java.util.Map<Script, Script>)this.script;
 		nativeObject.clear();
 	}
+	
+	/**********************************************************/
+	
+	
+	/**********************************************************
+	          Native Asynchronous Operation Function
+	 **********************************************************/
+	
+	public static final Promise setTimeout(final Script function, final int delayTime) {
+		return new Promise(new Promise.PromiseInitialFunction() {
+			
+			@Override
+			public void promiseInitialFunction(lovelyanqi.script.Promise.VOID_Function_OBJECT _onResolved,
+					lovelyanqi.script.Promise.VOID_Function_OBJECT _onRejected) {
+				new java.lang.Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						try {
+							Thread.sleep(delayTime);
+							_onResolved.run(function.run());
+						} catch(Exception e) {
+							_onRejected.run(e);
+						}
+						_onResolved.run(null);
+					}
+				}).start();
+			}
+		});
+	}
+	
 	
 	/**********************************************************/
 }
